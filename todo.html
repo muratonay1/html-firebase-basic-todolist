@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<head>
+    <title></title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-analytics.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script>
+        var firebaseConfig = {
+            /*
+            * RUN THE TODOLIST AFTER PASTING THE FIREBASE SETTINGS
+            */
+        };
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+    </script>
+    <script>
+        var eklenen;
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    <script>
+        var unc = document.getElementById('UnCheckText');
+        var c = document.getElementById('CheckText');
+        var inp = document.getElementById('inputText');
+        var t = document.getElementsByClassName('task');
+
+        function uncAdd(task) {
+            firebase.database().ref('NotCompleteTask/').push().set({
+                TaskId: task[0].id,
+                TaskName: task[0].innerText
+            })
+        }
+
+        function cAdd(id) {
+            var d = document.getElementById(id)
+            $(".compdatas").empty();
+            firebase.database().ref('CompleteTask/' + id[0].id).set({
+                TaskName: id[0].innerText
+            })
+        }
+
+        function loadAction() {
+            //firebase den verileri çekme
+            var a = document.getElementById('UnCheckText');
+            var b = document.getElementById('CheckText');
+            a.style.display = "block"
+            b.style.display = "block"
+            var deger = null;
+            var keys = null;
+            firebase.database().ref('NotCompleteTask/').on('value', (data) => {
+                deger = data.toJSON();
+                keys = Object.keys(deger);
+                a.style.display = "none";
+                if (deger != null) {
+                    for (let i = 0; i < keys.length; i++) {
+                        var task = $("<div id='" + keys[i] + "' onPress='clickTask(this.parentElement.id)' class='task'></div>").text(deger[keys[i]].TaskName);
+                        var del = $("<i style='font-size: 1.25em;' data-toggle='tooltip' title='Görevi iptal edip kaldırmak için tıklayın.' class='fas fa-trash-alt'></i>").click(function() {
+                            var p = $(this).parent();
+                            p.fadeOut(function() {
+                                p.remove();
+                                $(".datas").empty();
+                                a.style.display = "block"
+                                firebase.database().ref('NotCompleteTask/' + p[0].id).remove();
+                            });
+                        });
+                        var check = $("<i style='font-size: 1.25em;' data-toggle='tooltip' title='Görevi başardıysanız işaretleyip bir sonrakine geçin' class='fas fa-check'></i>").click(function() {
+                            var p = $(this).parent();
+                            p.fadeOut(function() {
+                                $(".datas").empty();
+                                $(".compdatas").empty();
+                                b.style.display = "block"
+                                firebase.database().ref('NotCompleteTask/' + p[0].id).remove();
+                                cAdd(p);
+                                p.fadeIn();
+                            });
+                            $(this).remove();
+                        });
+                        var edit = $("<i style='font-size: 1.25em;' data-toggle='tooltip' title='Görevi düzenlemek için tıklayın.'  class='fas fa-edit'></i>").click(function() {
+                            var p = $(this).parent();
+
+                        })
+                        edit.mousemove()
+                        task.append(del, edit, check);
+                        $(".datas").append(task);
+                        $(".txtb").val("");
+                    }
+                    deger = null;
+                    keys = null;
+                    eklenen = null;
+                } else {
+                    a.style.display = "block"
+                }
+            })
+            var deger1;
+            var keys1;
+            firebase.database().ref('CompleteTask/').on('value', (data) => {
+                deger1 = data.toJSON();
+                keys1 = Object.keys(deger1);
+                b.style.display = "none";
+                if (deger1 != null) {
+                    for (let i = 0; i < keys1.length; i++) {
+                        var task = $("<div id='" + keys1[i] + "' class='task'></div>").text(deger1[keys1[i]].TaskName);
+                        var del = $("<i style='font-size: 1.25em;' data-toggle='tooltip' title='Başarılan bu görev bildirimini yok et' class='fas fa-trash-alt'></i>").click(function() {
+                            var p = $(this).parent();
+                            p.fadeOut(function() {
+                                $(".compdatas").empty();
+                                p.remove();
+                                a.style.display = "block"
+                                firebase.database().ref('CompleteTask/' + p[0].id).remove();
+                            });
+                        });
+                        task.append(del);
+                        $(".compdatas").append(task);
+                    }
+                } else {
+                    a.style.display = "block"
+                }
+                deger1 = null;
+                keys1 = null;
+            })
+        }
+    </script>
+</head>
+
+<body onload="loadAction()">
+    <div class="container">
+        <input id="inputText" type="text" class="txtb" placeholder="Gorev Ekle">
+        <div class="notcomp">
+            <h3>Tamamlanmayan Görev</h3>
+            <p id="UnCheckText" style="font-size: 14px; display: none;">Bekleyen bir görev bulunamadı</p>
+            <div class="datas" style="overflow:visible; height:20%;">
+            </div>
+        </div>
+        <div class="comp">
+            <h3>Tamamlananlar</h3>
+            <p id="CheckText" style="font-size: 14px; display: none;">Tamamlanan görev bulunamadı</p>
+            <div class="compdatas">
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(".txtb").on("keyup", function(e) {
+            if (e.keyCode == 13 && $(".txtb").val() != "") {
+                $(".datas").empty();
+                let r = Math.floor(Math.random() * 999999999999);
+                eklenen = r;
+                var task = $("<div id='" + r.toString() + "' onPress='clickTask(this.parentElement.id)' class='task'></div>").text($(".txtb").val());
+                var del = $("<i class='fas fa-trash-alt'></i>").click(function() {
+                    var p = $(this).parent();
+                    p.fadeOut(function() {
+                        p.remove();
+                        firebase.database().ref('NotCompleteTask/' + p[0].id).remove();
+                        $(".datas").empty();
+                    });
+                });
+                var check = $("<i class='fas fa-check'></i>").click(function() {
+                    var p = $(this).parent();
+                    p.fadeOut(function() {
+                        $(".comp").append(p);
+                        p.fadeIn();
+                    });
+                    $(this).remove();
+                });
+                task.append(del, check);
+                $(".txtb").val("");
+                uncAdd(task);
+                task = null;
+                del = null;
+                check = null;
+            }
+        });
+    </script>
+</body>
+
+</html>

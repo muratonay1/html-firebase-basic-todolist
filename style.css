@@ -1,0 +1,66 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "montserrat", sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    background-image: linear-gradient(120deg, #487eb0, #fbc531);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    padding: 10px;
+}
+
+.txtb {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #000;
+    background: none;
+    padding: 10px;
+    outline: none;
+    font-size: 18px;
+    color: aliceblue;
+}
+
+h3 {
+    margin: 10px 0;
+    text-decoration-line: underline;
+}
+
+.task {
+    width: 100%;
+    background: rgba(32, 26, 26, 0.5);
+    padding: 18px;
+    margin: 6px 0;
+    overflow: hidden;
+    color: #fff;
+}
+
+.task i {
+    float: right;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+.comp .task {
+    background: rgba(3, 255, 66, 0.5);
+    color: #fff;
+}
+
+::placeholder {
+    color: white;
+    opacity: 0.5;
+}
+
+ :-ms-input-placeholder {
+    color: white;
+}
+
+ ::-ms-input-placeholder {
+    color: white;
+}
