@@ -1,5 +1,6 @@
 # html-firebase-basic-todolist
 a small application
+- You can develop and use it for free
 
 - STEPS
 - 1-) Create a web application on a firebase console
